@@ -1,0 +1,58 @@
+{% extends "base/base.html" %}
+{% load static %}
+
+{% block link %}
+    <link rel="stylesheet" href="{% static 'css/dishes.css' %}">
+    <script src="{% static 'js/cart.js' %}"></script>
+    <script src="{% static 'js/ajax_requests.js' %}"></script>
+{% endblock link %}
+
+{% block title %}
+    {{ title }}
+{% endblock title %}
+
+{% block main %}
+    <section class="section-container">
+            <section class="section-dishes">
+                <span class="section-title">{{ title.upper }}</span>
+
+                <div class="section-dishes-items">
+                    {% for item in catalog %}
+                        <div class="section-dishes-item">
+                            <div class="section-dishes-item-image">
+                                <img src="{{ item.image.url }}" alt="Image">
+                            </div>
+
+                            <div class="section-dishes-item-container">
+                                <div class="section-dishes-item-header">
+                                    <span class="section-dishes-item-title">{{ item.title }}</span>
+                                    <span class="section-dishes-item-weight">{{ item.weight }} г.</span>
+                                </div>
+
+                                <hr>
+
+                                <span class="section-dishes-item-description">
+                                    {{ item.description }}
+                                </span>
+
+                                <hr>
+
+                                <div class="section-dishes-item-footer">
+                                    <span class="section-dishes-item-price">{{ item.price }} BYN</span>
+                                    {% if item.pk in cart_ids %}
+                                        <span>
+                                            В корзинe
+                                        </span>
+                                    {% else %}
+                                        <button class="section-dishes-item-add-to-cart" onclick="addCartItem(this, {{ item.pk }}, '{{ csrf_token }}')">
+                                            В корзину
+                                        </button>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </section>
+        </section>
+{% endblock main %}

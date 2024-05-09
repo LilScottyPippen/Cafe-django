@@ -1,0 +1,147 @@
+hr{
+    border-bottom: 1px dashed var(--white-color);
+}
+
+.section-container{
+    margin-top: 100px;
+    gap: 50px;
+}
+
+.section-dishes{
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.section-dishes-items{
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    font-family: var(--content-font-family);
+    font-size: var(--content-font-size);
+}
+
+.section-dishes-item{
+    max-width: 250px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--black-color);
+    gap: 15px;
+    border: 1px solid var(--white-color);
+    border-radius: 5px;
+    padding-bottom: 15px;
+}
+
+.section-dishes-item-image{
+    width: 100%;
+    min-height: 140px;
+    border: 1px solid var(--white-color);
+    border-radius: 5px;
+    position: relative;
+    overflow: hidden;
+}
+
+.section-dishes-item-image img{
+    position: absolute;
+    object-fit: cover;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.section-dishes-item-container{
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 15px;
+}
+
+.section-dishes-item-header{
+    text-align: center;
+    padding: 0 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+}
+
+.section-dishes-item-weight{
+    white-space: nowrap;
+}
+
+.section-dishes-item-description{
+    padding: 0 10px;
+    height: 100%;
+    display: flex;
+    align-items: center;
+}
+
+.section-dishes-item-footer{
+    display: flex;
+    justify-content: space-between;
+    padding: 0 10px;
+    align-items: center;
+}
+
+.section-dishes-item-add-to-cart{
+    background-color: transparent;
+    color: var(--white-color);
+    border: 1px solid var(--white-color);
+    border-radius: 5px;
+    padding: 5px 10px;
+    font-family: var(--content-font-family);
+    font-size: var(--content-font-size);
+    cursor: pointer;
+}
+
+.section-dishes-item-add-to-cart:hover{
+    background-color: var(--white-color);
+    color: var(--black-color);
+}
+
+@media (max-width: 1050px){
+    .section-dishes-items{
+        display: flex;
+        margin-left: auto;
+        margin-right: auto;
+        max-width: 420px;
+    }
+
+    .section-dishes-item{
+        max-width: 200px;
+    }
+}
+
+@media (max-width: 750px){
+    .section-dishes-item-header{
+        flex-direction: row;
+        text-align: left;
+        justify-content: space-between;
+    }
+
+    .section-dishes-items{
+        padding: 0;
+    }
+
+    .section-dishes-item-container{
+        padding: 15px 0;
+    }
+    
+    .section-dishes-item{
+        flex-direction: row;
+        max-width: 100%;
+        gap: 0;
+        padding: 0;
+    }
+
+    .section-dishes-item-image{
+        height: 100%;
+        max-width: 90px;
+        min-width: 90px;
+    }
+}

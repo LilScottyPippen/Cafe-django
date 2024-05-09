@@ -1,0 +1,29 @@
+{% extends "base/base.html" %}
+{% load static %}
+
+{% block link %}
+    <link rel="stylesheet" href="{% static 'css/catalog.css' %}">
+{% endblock link %}
+
+{% block title %}
+    {{ title }}
+{% endblock title %}
+
+{% block main %}
+    <section class="section-container">
+        <section class="section-catalog">
+            <span class="section-title">КАТАЛОГ</span>
+
+            <div class="section-catalog-items">
+                {% for item in catalog %}
+                    <div class="section-catalog-item" onclick="window.location='{% url 'index:dishes' item.slug %}'">
+                        <div class="section-catalog-item-image">
+                            <img src="{{ item.image.url }}" alt="Image">
+                        </div>
+                        <span class="section-catalog-item-title">{{ item.title }}</span>
+                    </div>
+                {% endfor %}
+            </div>
+        </section>
+    </section>
+{% endblock main %}

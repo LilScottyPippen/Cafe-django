@@ -1,0 +1,52 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <title>{% block title %} {% endblock title %}</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="icon" href="{% static 'img/logo/Frame 12.png' %}">
+    <link rel="stylesheet" href="{% static 'css/variables.css' %}">
+    <link rel="stylesheet" href="{% static 'css/base.css' %}">
+    <link rel="stylesheet" href="{% static 'css/preloader.css' %}">
+    <link rel="stylesheet" href="{% static 'css/header.css' %}">
+    <link rel="stylesheet" href="{% static 'css/elem-side.css' %}">
+    <link rel="stylesheet" href="{% static 'css/footer.css' %}">
+
+    <script src="{% static 'js/preloader.js' %}"></script>
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"
+      integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+      crossorigin="anonymous"></script>
+
+    <script src="{% static 'js/notification.js' %}"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/simple-notify@1.0.4/dist/simple-notify.css" />
+    <script src="https://cdn.jsdelivr.net/npm/simple-notify@1.0.4/dist/simple-notify.min.js"></script>
+
+    {% block link %}
+    {% endblock link %}
+</head>
+
+<body>
+    {% include "base/preloader.html" %}
+
+    <header>
+        {% block header %}
+        {% include "base/header.html" %}
+        {% endblock header%}
+    </header>
+
+    <main class="padding-for-main">
+        {% block main %}
+        {% endblock main%}
+    </main>
+
+    {% block footer%}
+    {% include "base/footer.html" %}
+    {% endblock footer%}
+
+    {% block script %}
+    {% endblock script %}
+</body>
+</html>

@@ -1,0 +1,30 @@
+{% load static %}
+<footer class="main-footer">
+    <div onclick="window.location='{% url 'index:index' %}'">
+        <img class="footer-logo" src="{% static 'img/logo/logo.png' %}" alt="Image">
+    </div>
+    <div class="footer-item">
+        <span class="footer-item-title">Адрес</span>
+        <div class="footer-item-description">
+            <span>г. Минск ул. Ф. Скорины, 1</span>
+        </div>
+    </div>
+    <div class="footer-item">
+        <span class="footer-item-title">Контакты</span>
+        <div class="footer-item-description">
+            <a href="tel:+375173738355">+375 (17) 373-83-55</a>
+            <a href="tel:+375296188355">+375 (29) 618-83-55</a>
+        </div>
+    </div>
+    <div class="footer-item">
+        <span class="footer-item-title">Время работы</span>
+        <div class="footer-item-description">
+            <span>вс-чт 12:00 — 24:00</span>
+            <span>пт-сб 12:00 — 02:00</span>
+        </div>
+    </div>
+</footer>
+
+<footer class="second-footer">
+    <span>&copy; 2024. Все права защищены.</span>
+</footer>

@@ -1,0 +1,14 @@
+{% load static %}
+<nav class="header-nav">
+    <div onclick="window.location='{% url 'index:index' %}'">
+        <img class="header-logo" src="{% static 'img/logo/logo.png' %}" alt="Logo">
+    </div>
+    <ul>
+        <li>
+            <a href="{% url 'index:catalog' %}">Каталог</a>
+        </li>
+        <li>
+            <a href="{% url 'cart:cart' %}">Корзина</a>
+        </li>
+    </ul>
+</nav>

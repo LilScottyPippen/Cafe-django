@@ -1,0 +1,13 @@
+.elem-side-left, .elem-side-right{
+    position: absolute;
+    top: 100px;
+    height: 700px;
+}
+
+.elem-side-left {
+    left: calc(40% - 1100px);
+}
+
+.elem-side-right {
+    right: calc(40% - 1100px);
+}

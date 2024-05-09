@@ -1,0 +1,105 @@
+{% extends "base/base.html" %}
+{% load static %}
+
+{% block link %}
+    <link rel="stylesheet" href="{% static 'css/cart.css' %}">
+    <script src="{% static 'js/cart.js' %}"></script>
+    <script src="{% static 'js/ajax_requests.js' %}"></script>
+{% endblock link %}
+
+{% block title %}
+    Корзина
+{% endblock title %}
+
+{% block main %}
+    <section class="section-container">
+        {% if products.items %}
+        <section class="section-cart">
+            <span class="section-title">КОРЗИНА</span>
+            <table class="section-cart-items">
+                <thead class="section-cart-items-header">
+                    <tr>
+                        <th class="section-cart-title">Товар</th>
+                        <th class="section-cart-title">Кол-во</th>
+                        <th class="section-cart-title hidden">Цена</th>
+                        <th class="section-cart-title">Сумма</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody class="section-cart-item">
+                    {% for product_id, product in products.items %}
+                    <tr>
+                        <td class="section-cart-product">
+                            <div class="section-cart-item-image">
+                                <img src="{{ product.image.url }}" alt="Image">
+                            </div>
+                            <span class="section-cart-item-title">{{ product.title }}</span>
+                        </td>
+                        <td class="section-cart-item-count">
+                            <input type="number" value="{{ product.quantity }}" oninput="this.value = this.value.slice(0, 2)"></input>
+                        </td>
+                        <td class="section-cart-item-price">{{ product.price }} BYN</td>
+                        <td class="section-cart-item-sum"><span id="itemSum">{{ product.price }}</span> BYN</td>
+                        <td class="section-cart-item-delete"><img src="{% static 'img/elements/trash 1.png' %}" onclick="deleteCartItem(this, {{ product_id }}, '{{ csrf_token }}', {{ delivery_cost }})" alt="Trash"></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <div class="section-cart-counting">
+                <div class="section-cart-counting-details">
+                    <span class="section-cart-counting-delivery">Доставка: 10 BYN</span>
+                    <span class="section-cart-counting-discount">Скидка: 0 BYN</span>
+                    <div class="section-cart-counting-coupone">
+                        <span class="section-cart-counting-coupone-title">Купон:</span>
+                        <input type="number" class="section-cart-counting-coupone-input" placeholder="Введите купон" oninput="this.value = this.value.slice(0, 5)">
+                        <button class="section-cart-counting-coupone-submit">Применить</button>
+                    </div>
+                </div>
+                <span>Сумма: <span id="cart-amount">{{ cart_amount }}</span> BYN</span>
+            </div>
+
+            <div class="section-cart-total-sum">
+                <span>ИТОГО: <span id="cart-total-amount">{{ cart_total }}</span> BYN</span>
+            </div>
+        </section>
+
+        <section class="section-contact-information">
+            <span class="section-title">КОНТАКТНЫЕ ДАННЫЕ</span>
+
+            <div class="section-contact-information-items">
+                <div class="section-contact-information-item">
+                    <span>Имя:</span>
+                    <input name="name" type="text" placeholder="Ваше имя">
+                </div>
+
+                <div class="section-contact-information-item">
+                    <span>Телефон:</span>
+                    <input name="phone" type="text" placeholder="Ваш телефон">
+                </div>
+
+                <div class="section-contact-information-item">
+                    <span>E-mail:</span>
+                    <input name="e-mail" type="text" placeholder="Ваш e-mail">
+                </div>
+
+                <div class="section-contact-information-item">
+                    <span>Адрес:</span>
+                    <input name="address" type="text" placeholder="Ваш адрес">
+                </div>
+            </div>
+        </section>
+
+        <section class="section-payment">
+            <span class="section-title">ОПЛАТА</span>
+
+            <button class="section-payment-submit">Перейти к оплате</button>
+        </section>
+        {% else %}
+            <section class="section-cart">
+                <span class="section-title">КОРЗИНА</span>
+                <span>Корзина пуста.</span>
+            </section>
+        {% endif %}
+    </section>
+{% endblock main %}

@@ -1,0 +1,56 @@
+{% extends "base/base.html" %}
+{% load static %}
+
+{% block link %}
+    <link rel="stylesheet" href="{% static 'css/index.css' %}">
+{% endblock link %}
+
+{% block title %}
+    Кафе
+{% endblock title %}
+
+{% block main %}
+    <img class="elem-side-left" src="{% static 'img/elements/dish.webp' %}" alt="Image">
+    <img class="elem-side-right" src="{% static 'img/elements/dish.webp' %}" alt="Image">
+    
+    <section class="section-container">
+        <section class="main-section">
+            <img class="main-section-logo" src="{% static 'img/logo/logo.png' %}" alt="Logo">
+            <span class="section-title">ДОБРО ПОЖАЛОВАТЬ</span>
+            <span class="section-description">Заказывайте онлайн<br> или звоните <a href="tel:+375296188355">+375 (29) 618-83-55</a></span>
+        </section>
+
+        <section class="about-us-section">
+            <div class="about-us-container">
+                <span class="section-title">О НАС</span>
+                <span class="about-us-description-first">
+                    Это место для отдыха, в котором есть все для того, чтобы расслабиться после рабочего дня, провести вечер с друзьями, семьей или отметить любой праздник.
+                </span>
+                <span class="about-us-description-second right-content">
+                    Стиль и комфорт. Место, где каждый найдёт частичку себя и захочет вернуться снова. У нас разноплановое меню, в котором вы найдете как классические блюда, так и изысканные деликатесы. Мы с трепетом относимся к своим Гостям и помогаем им реализовывать их самые яркие задумки в организации семейных или корпоративных праздников!
+                </span>
+            </div>
+            <div class="about-us-image-container">
+                <img src="{% static 'img/room/room.webp' %}" alt="Image">
+            </div>
+        </section>
+
+        <section class="our-menu-section">
+            <span class="section-title">НАШЕ МЕНЮ</span>
+            <span class="section-description">Ознакомьтесь с нашим меню</span>
+            <span class="btn-white-border" onclick="window.location='{% url 'index:catalog' %}'">Меню</span>
+
+            <div class="our-menu-section-object">
+                <div class="our-menu-section-object-circle first-circle">
+                    <img src="{% static 'img/dishes/salmon-fillet.webp' %}" alt="Image">
+                </div>
+                <div class="our-menu-section-object-circle second-circle">
+                    <img src="{% static 'img/dishes/ovoshhnoj-salat.webp' %}" alt="Image">
+                </div>
+                <div class="our-menu-section-object-circle third-circle">
+                    <img src="{% static 'img/dishes/grilled-potatoes.webp' %}" alt="Image">
+                </div>
+            </div>
+        </section>
+    </section>
+{% endblock main %}

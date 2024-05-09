@@ -1,0 +1,18 @@
+@import url('https://fonts.googleapis.com/css2?family=Poiret+One&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Poiret+One&display=swap');
+
+:root{
+    --title-font-family: "Montserrat", sans-serif;
+    --content-font-family: "Poiret One", sans-serif;
+
+    --title-font-size: 30px;
+    --content-font-size: 18px;
+
+    --black-color: #111111;
+    --white-color: white;
+    --base-gradient: linear-gradient(to right, rgba(255, 255, 255, 0.1), rgba(17,17,17,1) 20%, rgba(17,17,17,1) 80%, rgba(255, 255, 255, 0.1));
+
+    --max-width: 900px;
+
+    --preloader-index: 9999;
+}

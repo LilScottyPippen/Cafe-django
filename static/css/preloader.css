@@ -1,0 +1,45 @@
+.preloader {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: fixed;
+    gap: 50px;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 1;
+    background-color: var(--black-color);
+    background-image: var(--base-gradient);
+    transition: opacity 1.2s ease;
+    z-index: var(--preloader-index);
+}
+
+.preloader img {
+    width: 150px;
+    height: auto;
+}
+
+.loader {
+    position: absolute;
+    width: 200px;
+    height: 200px;
+}
+
+.loader:before , .loader:after{
+    content: '';
+    border-radius: 50%;
+    position: absolute;
+    inset: 0;
+    box-shadow: 0 0 10px 2px rgba(0, 0, 0, 0.3) inset;
+}
+.loader:after {
+    box-shadow: 0 2px 0 var(--white-color) inset;
+    animation: rotate 2s linear infinite;
+}
+
+@keyframes rotate {
+    0% {  transform: rotate(0)}
+    100% { transform: rotate(360deg)}
+}
