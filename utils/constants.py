@@ -1,6 +1,7 @@
 SUCCESS_MESSAGES = {
     'success_adding_item': 'Продукт успешно добавлен в корзину.',
-    'success_deleting_item': 'Продукт успешно удален из корзины.'
+    'success_deleting_item': 'Продукт успешно удален из корзины.',
+    'success_updating_item': 'Количество продукта успешно обновлено.'
 }
 
 ERROR_MESSAGES = {

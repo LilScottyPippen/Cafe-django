@@ -104,6 +104,12 @@ hr{
     color: var(--black-color);
 }
 
+.section-dishes-item-added-to-cart{
+    height: 33px;
+    display: flex;
+    align-items: center;
+}
+
 @media (max-width: 1050px){
     .section-dishes-items{
         display: flex;

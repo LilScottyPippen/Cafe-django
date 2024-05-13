@@ -18,14 +18,7 @@ class Cart(object):
 
         self.cart = cart
 
-    def __iter__(self):
-        """
-        Метод итератора для корзины.
-        """
-        for item in self.cart.values():
-            yield item
-
-    def add(self, product_id: Union[int, str], quantity=1, update_quantity=False) -> bool:
+    def add(self, product_id: str, quantity: int) -> bool:
         """
         Добавляет продукт в корзину или обновляет его количество.
         """
@@ -34,14 +27,11 @@ class Cart(object):
         except Dish.DoesNotExist:
             return False
 
-        if product.id not in self.cart:
-            self.cart[product.id] = {
-                'quantity': quantity,
-                'price': product.price,
-            }
-
-        if update_quantity:
-            self.cart[product.id]['quantity'] += quantity
+        self.cart[product_id] = {
+            'quantity': quantity,
+            'price': product.price,
+            'total_sum': product.price * quantity,
+        }
 
         self.save()
         return True

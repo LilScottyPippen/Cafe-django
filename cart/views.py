@@ -1,6 +1,5 @@
 import os
 from typing import Union
-
 from django.core.handlers.wsgi import WSGIRequest
 from django.http import HttpResponse
 from django.views.generic import TemplateView
@@ -97,22 +96,31 @@ class CartView(APIView):
     @staticmethod
     @api_view(('POST',))
     @renderer_classes((JSONRenderer,))
-    def add(request: WSGIRequest, product_id: str) -> Response:
+    def add(request: WSGIRequest, product_id: str, quantity=1) -> Response:
         """
         Вызывает метод добавления товара в коризну.
         """
         cart = CartView().get_cart(request)
-        result = cart.add(product_id)
+        isNewItem = True
 
         response_data = {
-            'status': STATUS_TYPES['success'],
-            'message': SUCCESS_MESSAGES['success_adding_item'],
-            'items': cart.cart.items(),
+            'status': STATUS_TYPES['error'],
+            'message': ERROR_MESSAGES['error_adding_item']
         }
 
-        if result is not True:
-            response_data['status'] = STATUS_TYPES['error']
-            response_data['message'] = ERROR_MESSAGES['error_adding_item']
+        if product_id in cart.cart.keys():
+            isNewItem = False
+
+        result = cart.add(product_id, quantity)
+
+        if result is True:
+            if isNewItem is True:
+                response_data['message'] = SUCCESS_MESSAGES['success_adding_item']
+            else:
+                response_data['message'] = SUCCESS_MESSAGES['success_updating_item']
+
+            response_data['status'] = STATUS_TYPES['success']
+            response_data['items'] = cart.cart.items()
 
         return Response(response_data)
 

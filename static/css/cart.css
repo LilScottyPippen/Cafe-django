@@ -21,7 +21,7 @@ td{
     gap: 20px;
 }
 
-.section-cart-items {
+.table-cart-items {
     width: 100%;
     border-collapse: collapse;
 }
@@ -50,7 +50,7 @@ input, button, .section-cart, .section-contact-information-items{
     font-size: var(--content-font-size);
 }
 
-.section-cart-item{
+.section-cart-items{
     gap: 10px;
     align-items: center;
     justify-content: space-between;

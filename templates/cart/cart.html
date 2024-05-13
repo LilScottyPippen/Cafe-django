@@ -16,7 +16,7 @@
         {% if products.items %}
         <section class="section-cart">
             <span class="section-title">КОРЗИНА</span>
-            <table class="section-cart-items">
+            <table class="table-cart-items">
                 <thead class="section-cart-items-header">
                     <tr>
                         <th class="section-cart-title">Товар</th>
@@ -26,9 +26,9 @@
                         <th></th>
                     </tr>
                 </thead>
-                <tbody class="section-cart-item">
+                <tbody class="section-cart-items">
                     {% for product_id, product in products.items %}
-                    <tr>
+                    <tr id="cart-item">
                         <td class="section-cart-product">
                             <div class="section-cart-item-image">
                                 <img src="{{ product.image.url }}" alt="Image">
@@ -36,10 +36,10 @@
                             <span class="section-cart-item-title">{{ product.title }}</span>
                         </td>
                         <td class="section-cart-item-count">
-                            <input type="number" value="{{ product.quantity }}" oninput="this.value = this.value.slice(0, 2)"></input>
+                            <input type="number" class="item-quantity" value="{{ product.quantity }}" data-product-id="{{ product_id }}" data-csrf="{{ csrf_token }}" oninput="this.value = this.value.slice(0, 2)">
                         </td>
-                        <td class="section-cart-item-price">{{ product.price }} BYN</td>
-                        <td class="section-cart-item-sum"><span id="itemSum">{{ product.price }}</span> BYN</td>
+                        <td class="section-cart-item-price"><span id="productPrice">{{ product.price }}</span> BYN</td>
+                        <td class="section-cart-item-sum"><span id="productSum">{% widthratio product.price 1 product.quantity %}</span> BYN</td>
                         <td class="section-cart-item-delete"><img src="{% static 'img/elements/trash 1.png' %}" onclick="deleteCartItem(this, {{ product_id }}, '{{ csrf_token }}', {{ delivery_cost }})" alt="Trash"></td>
                     </tr>
                     {% endfor %}
@@ -48,7 +48,7 @@
 
             <div class="section-cart-counting">
                 <div class="section-cart-counting-details">
-                    <span class="section-cart-counting-delivery">Доставка: 10 BYN</span>
+                    <span class="section-cart-counting-delivery">Доставка: <span id="delivery-cost">{{ delivery_cost }}</span> BYN</span>
                     <span class="section-cart-counting-discount">Скидка: 0 BYN</span>
                     <div class="section-cart-counting-coupone">
                         <span class="section-cart-counting-coupone-title">Купон:</span>
