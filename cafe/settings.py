@@ -117,6 +117,8 @@ try:
 except KeyError:
     MEDIA_ROOT = BASE_DIR / 'media'
 
+SESSION_COOKIE_AGE = 60 * 60 * 24 * 7
+
 CART_SESSION_ID = 'cart'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

@@ -49,3 +49,11 @@ function updateCartItemRequest(productId, quantity, csrf_token){
         csrf_token: csrf_token
     })
 }
+
+function applyCouponRequest(coupon, csrf_token){
+    return makeAjaxRequest({
+        type: "POST",
+        url: `/cart/coupon/${coupon}`,
+        csrf_token: csrf_token
+    })
+}

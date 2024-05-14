@@ -104,19 +104,19 @@ input, button, .section-cart, .section-contact-information-items{
     gap: 20px;
 }
 
-.section-cart-counting-coupone{
+.section-cart-counting-coupon{
     display: flex;
     gap: 15px;
     align-items: center;
     flex-wrap: wrap;
 }
 
-.section-cart-counting-coupone-input{
+.section-cart-counting-coupon-input{
     width: 120px;
     height: 30px;
 }
 
-.section-cart-counting-coupone-submit, .section-payment-submit{
+.section-cart-counting-coupon-submit, .section-payment-submit{
     border: 1px solid var(--white-color);
     padding: 5px 15px;
     border-radius: 5px;
@@ -125,7 +125,7 @@ input, button, .section-cart, .section-contact-information-items{
     color: var(--white-color);
 }
 
-.section-cart-counting-coupone-submit:hover,
+.section-cart-counting-coupon-submit:hover,
 .section-payment-submit:hover{
     background-color: var(--white-color);
     color: var(--black-color);

@@ -11,5 +11,5 @@ class Catalog(models.Model):
         return self.title
 
     class Meta:
-        verbose_name = 'Каталоги'
-        verbose_name_plural = 'Каталог'
+        verbose_name = 'Каталог'
+        verbose_name_plural = 'Каталоги'

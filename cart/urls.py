@@ -10,4 +10,5 @@ urlpatterns = [
     path('add/<str:product_id>', CartView.add, name='cart_add'),
     path('add/<str:product_id>/<int:quantity>', CartView.add, name='cart_add_quantity'),
     path('delete/<str:product_id>', CartView.delete, name='cart_delete'),
+    path('coupon/<str:coupon>', CartView.coupon)
 ]

@@ -5,6 +5,7 @@
     <link rel="stylesheet" href="{% static 'css/cart.css' %}">
     <script src="{% static 'js/cart.js' %}"></script>
     <script src="{% static 'js/ajax_requests.js' %}"></script>
+    <script src="{% static 'js/constants.js' %}"></script>
 {% endblock link %}
 
 {% block title %}
@@ -49,11 +50,11 @@
             <div class="section-cart-counting">
                 <div class="section-cart-counting-details">
                     <span class="section-cart-counting-delivery">Доставка: <span id="delivery-cost">{{ delivery_cost }}</span> BYN</span>
-                    <span class="section-cart-counting-discount">Скидка: 0 BYN</span>
-                    <div class="section-cart-counting-coupone">
-                        <span class="section-cart-counting-coupone-title">Купон:</span>
-                        <input type="number" class="section-cart-counting-coupone-input" placeholder="Введите купон" oninput="this.value = this.value.slice(0, 5)">
-                        <button class="section-cart-counting-coupone-submit">Применить</button>
+                    <span class="section-cart-counting-discount">Скидка: <span id="discount">{% if discount %} {{ discount }} {% else %} 0 {% endif %}</span> %</span>
+                    <div class="section-cart-counting-coupon">
+                        <span class="section-cart-counting-coupon-title">Купон:</span>
+                        <input type="number" class="section-cart-counting-coupon-input" placeholder="Введите купон" oninput="this.value = this.value.slice(0, 6)">
+                        <button class="section-cart-counting-coupon-submit" onclick="applyDiscountCoupon('{{ csrf_token }}')">Применить</button>
                     </div>
                 </div>
                 <span>Сумма: <span id="cart-amount">{{ cart_amount }}</span> BYN</span>

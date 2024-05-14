@@ -1,5 +1,4 @@
 from typing import Union
-
 from django.conf import settings
 from django.core.handlers.wsgi import WSGIRequest
 from index.models import Dish

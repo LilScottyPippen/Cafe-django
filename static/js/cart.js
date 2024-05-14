@@ -18,10 +18,10 @@ function deleteCartItem(elem, product_id, csrf_token) {
   if (row.parentNode)
     row.parentNode.removeChild(row)
 
-  result.then(function(result){
+  result.then(function(json){
     updateCartAmount()
 
-    if (result.items.length === 0)
+    if (json.items.length === 0)
       setEmptyCart()
   })
 }
@@ -34,8 +34,8 @@ function setEmptyCart(){
 function updateCartAmount(){
   const result = getCartAmountRequest()
 
-  result.then(function(result){
-    document.getElementById('cart-amount').innerHTML = result.amount.toString()
+  result.then(function(json){
+    document.getElementById('cart-amount').innerText = json.amount.toString()
     updateCartTotalAmount()
   })
 }
@@ -43,9 +43,10 @@ function updateCartAmount(){
 function updateCartTotalAmount(){
   const cartAmount = parseInt(document.getElementById('cart-amount').innerHTML)
   const deliveryCost = parseInt(document.getElementById('delivery-cost').innerHTML)
-  const cartTotalAmount = cartAmount + deliveryCost
+  const discount = parseInt(document.getElementById('discount').innerHTML)
+  const cartDiscount = Math.ceil(cartAmount / 100 * discount)
 
-  document.getElementById('cart-total-amount').innerHTML = cartTotalAmount.toString()
+  document.getElementById('cart-total-amount').innerText = cartAmount - cartDiscount + deliveryCost
 }
 
 let inputValue
@@ -65,10 +66,10 @@ function updateQuantityItemCart(event){
   if (inputValue !== value){
     const result = updateCartItemRequest(productId, value, csrfToken)
 
-    result.then(function(result){
-      result.items.forEach(function (item){
+    result.then(function(json){
+      json.items.forEach(function (item){
         if(productId === item[0])
-          parentItem.querySelector('#productSum').innerHTML = item[1].total_sum.toString()
+          parentItem.querySelector('#productSum').innerText = item[1].total_sum.toString()
       })
 
       updateCartAmount()
@@ -88,3 +89,24 @@ document.addEventListener('DOMContentLoaded', function() {
     input.addEventListener("focusout", updateQuantityItemCart)
   })
 })
+
+function applyDiscountCoupon(csrf_token){
+  const couponInput = document.querySelector('.section-cart-counting-coupon-input')
+
+  if (couponInput.value.length > 0) {
+    const result = applyCouponRequest(couponInput.value, csrf_token)
+    result.then(function(json) {
+      if (json.status === 'success') {
+        couponInput.style.borderColor = DEFAULT_COLOR_BORDER
+        document.getElementById('discount').innerHTML = json.discount
+
+        updateCartTotalAmount()
+      } else {
+        couponInput.style.borderColor = ERROR_COLOR_BORDER
+      }
+    })
+  }else{
+    showNotification('error', ERROR_MESSAGE['errorApplyCoupon'])
+    couponInput.style.borderColor = ERROR_COLOR_BORDER
+  }
+}

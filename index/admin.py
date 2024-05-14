@@ -3,6 +3,7 @@ from .models import *
 
 
 admin.site.register(Catalog)
+admin.site.register(Coupon)
 
 
 @admin.register(Dish)
