@@ -72,7 +72,11 @@ class CartTemplateView(TemplateView):
         """
         Расчитывает скидку и возвращяет словарь.
         """
-        coupon_discount = Coupon.objects.filter(code=self.request.session.get('coupon'))[0].discount
+        try:
+            coupon_discount = Coupon.objects.get(code=self.request.session.get('coupon')).discount
+        except Coupon.DoesNotExist:
+            pass
+
         context = {}
 
         if coupon_discount:
