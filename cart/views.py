@@ -75,7 +75,7 @@ class CartTemplateView(TemplateView):
         try:
             coupon_discount = Coupon.objects.get(code=self.request.session.get('coupon')).discount
         except Coupon.DoesNotExist:
-            pass
+            coupon_discount = None
 
         context = {}
 
