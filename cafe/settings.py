@@ -1,7 +1,5 @@
 import os
 from pathlib import Path
-
-from django.conf import settings
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -36,6 +34,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
+    'middleware.RatelimitMiddleware',
 ]
 
 REST_FRAMEWORK = {

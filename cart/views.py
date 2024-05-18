@@ -1,16 +1,15 @@
 import math
 import os
-from typing import Union
 from django.core.handlers.wsgi import WSGIRequest
-from django.http import HttpResponse
 from django.views.generic import TemplateView
 from rest_framework.decorators import api_view, renderer_classes
 from rest_framework.renderers import JSONRenderer
-from rest_framework.response import Response
+from django.http import JsonResponse
 from rest_framework.views import APIView
 from index.models import Dish, Coupon
+from utils.response import success_response, error_response
 from .cart import Cart
-from utils.constants import SUCCESS_MESSAGES, ERROR_MESSAGES, STATUS_TYPES
+from utils.constants import SUCCESS_MESSAGES, ERROR_MESSAGES
 
 
 class CartTemplateView(TemplateView):
@@ -21,7 +20,7 @@ class CartTemplateView(TemplateView):
 
     def get_context_data(self, **kwargs) -> dict:
         """
-        Инициализация шаблона корзины.
+        Инициализация шаблона.
         """
         context = super().get_context_data(**kwargs)
 
@@ -42,6 +41,9 @@ class CartTemplateView(TemplateView):
         return context
 
     def get_cart_products(self) -> dict:
+        """
+        Возвращяет список товаров корзины.
+        """
         cart = Cart(self.request)
         cart_items = dict(cart.cart.items())
         cart_items_ids = cart_items.keys()
@@ -70,7 +72,7 @@ class CartTemplateView(TemplateView):
 
     def get_discount(self, cart_amount: int, delivery_cost: int) -> dict:
         """
-        Расчитывает скидку и возвращяет словарь.
+        Расчитывает скидку и возвращяет словарь с данными о скидке.
         """
         try:
             coupon_discount = Coupon.objects.get(code=self.request.session.get('coupon')).discount
@@ -92,7 +94,6 @@ class CartView(APIView):
     """
     Класс API для работы с корзиной.
     """
-
     def get_cart(self, request: WSGIRequest) -> Cart:
         """
         Возвращяет экземляр корзины.
@@ -100,48 +101,35 @@ class CartView(APIView):
         cart = Cart(request)
         return cart
 
-    def get(self, request: WSGIRequest) -> Union[HttpResponse, Response]:
+    def get(self, request: WSGIRequest) -> JsonResponse:
         """
         Возвращяет содержимое корзины.
         """
-
         cart = self.get_cart(request)
-
-        response_data = {
-            'status': STATUS_TYPES['success'],
-            'items': cart.cart.items(),
-        }
-        return Response(response_data)
+        items = cart.cart.items()
+        return success_response(None, items=list(items))
 
     @staticmethod
     @api_view(('GET',))
     @renderer_classes((JSONRenderer,))
-    def get_amount(request):
+    def get_amount(request: WSGIRequest):
         """
         Возвращяет сумму корзины.
         """
         cart = CartView().get_cart(request)
+        amount = cart.get_total_amount()
 
-        response_data = {
-            'status': STATUS_TYPES['success'],
-            'amount': cart.get_total_amount()
-        }
-        return Response(response_data)
+        return success_response(None, amount=amount)
 
     @staticmethod
     @api_view(('POST',))
     @renderer_classes((JSONRenderer,))
-    def add(request: WSGIRequest, product_id: str, quantity=1) -> Response:
+    def add(request: WSGIRequest, product_id: str, quantity=1) -> JsonResponse:
         """
-        Вызывает метод добавления товара в коризну.
+        Вызывает метод добавления товара в корзину.
         """
         cart = CartView().get_cart(request)
         isNewItem = True
-
-        response_data = {
-            'status': STATUS_TYPES['error'],
-            'message': ERROR_MESSAGES['error_adding_item']
-        }
 
         if product_id in cart.cart.keys():
             isNewItem = False
@@ -150,71 +138,63 @@ class CartView(APIView):
 
         if result is True:
             if isNewItem is True:
-                response_data['message'] = SUCCESS_MESSAGES['success_adding_item']
+                message = SUCCESS_MESSAGES['success_adding_item']
             else:
-                response_data['message'] = SUCCESS_MESSAGES['success_updating_item']
+                message = SUCCESS_MESSAGES['success_updating_item']
 
-            response_data['status'] = STATUS_TYPES['success']
-            response_data['items'] = cart.cart.items()
-
-        return Response(response_data)
+            items = cart.cart.items()
+            return success_response(message, items=list(items))
+        else:
+            return error_response(ERROR_MESSAGES['error_adding_item'])
 
     @staticmethod
     @api_view(('POST',))
     @renderer_classes((JSONRenderer,))
-    def delete(request: WSGIRequest, product_id: str) -> Response:
+    def delete(request: WSGIRequest, product_id: str) -> JsonResponse:
         """
-        Вызывает метод удаления товара из коризны.
+        Вызывает метод удаления товара из корзины.
         """
         cart = CartView().get_cart(request)
-
-        response_data = {
-            'status': STATUS_TYPES['error'],
-            'message': ERROR_MESSAGES['error_deleting_item']
-        }
 
         try:
             result = cart.remove(product_id)
 
             if result is not True:
-                return Response(response_data)
+                result = False
         except ValueError:
-            return Response(response_data)
+            result = False
 
-        response_data = {
-            'status': STATUS_TYPES['success'],
-            'message': SUCCESS_MESSAGES['success_deleting_item'],
-            'items': cart.cart.items(),
-        }
-        return Response(response_data)
+        if result is False:
+            return error_response(ERROR_MESSAGES['error_deleting_item'])
+
+        items = cart.cart.items()
+        return success_response(SUCCESS_MESSAGES['success_deleting_item'], items=list(items))
 
     @staticmethod
     @api_view(('POST',))
     @renderer_classes((JSONRenderer,))
-    def coupon(request: WSGIRequest, coupon: str) -> Response:
+    def coupon(request: WSGIRequest, coupon: str) -> JsonResponse:
+        """
+        Применяет купон.
+        """
         try:
             coupon_obj = Coupon.objects.get(code=coupon)
         except Coupon.DoesNotExist:
             coupon_obj = False
-
-        response_data = {
-            'status': STATUS_TYPES['error'],
-            'message': ERROR_MESSAGES['error_dont_exist_coupon']
-        }
 
         if coupon_obj is not False and coupon_obj.used < coupon_obj.uses:
             session_coupon = request.session.get('coupon')
 
             if not session_coupon or session_coupon != coupon:
                 request.session['coupon'] = coupon
+
                 coupon_obj.used += 1
                 coupon_obj.save()
 
-                response_data['status'] = STATUS_TYPES['success']
-                response_data['message'] = SUCCESS_MESSAGES['success_apply_coupon']
-                response_data['discount'] = coupon_obj.discount
+                discount = coupon_obj.discount
+
+                return success_response(SUCCESS_MESSAGES['success_apply_coupon'], discount=discount)
             else:
                 if session_coupon == coupon:
-                    response_data['status'] = STATUS_TYPES['error']
-                    response_data['message'] = ERROR_MESSAGES['error_apply_coupon']
-        return Response(response_data)
+                    return error_response(ERROR_MESSAGES['error_apply_coupon'])
+        return error_response(ERROR_MESSAGES['error_dont_exist_coupon'])

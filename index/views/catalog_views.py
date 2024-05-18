@@ -5,18 +5,30 @@ from ..models import Catalog, Dish
 
 
 class CatalogView(TemplateView):
+    """
+    Класс шаблона каталога.
+    """
     template_name = 'catalog/catalog.html'
 
     def get_context_data(self, **kwargs):
+        """
+        Инициализация шаблона.
+        """
         context = super().get_context_data(**kwargs)
         context['catalog'] = Catalog.objects.all()
         return context
 
 
 class DishView(TemplateView):
+    """
+    Класс шаблона блюд.
+    """
     template_name = 'catalog/dishes.html'
 
     def get_context_data(self, **kwargs):
+        """
+        Инициализация шаблона.
+        """
         context = super().get_context_data(**kwargs)
         dish = Dish.objects.filter(catalog__slug=self.kwargs['slug'])
 

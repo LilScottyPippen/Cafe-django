@@ -4,4 +4,5 @@
 */migrations
 .env
 /media
-**/__pycache__/
+__pycache__/
+*.pyc
