@@ -13,6 +13,9 @@ class OrderForm(forms.ModelForm):
         fields = '__all__'
 
     def clean(self):
+        """
+        Валидация полей формы.
+        """
         cleaned_data = super().clean()
         client_name = cleaned_data.get('client_name')
         client_phone = cleaned_data.get('client_phone')

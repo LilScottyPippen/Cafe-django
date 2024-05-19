@@ -3,10 +3,11 @@ function makeAjaxRequest(options) {
         $.ajax({
             type: options.type,
             url: options.url,
+            contentType: 'application/json',
+            data: JSON.stringify(options.data),
             headers: {
                 'X-CSRFToken': options.csrf_token
             },
-            dataType: 'json',
             success: function (response) {
                 resolve(response)
                 showNotification(response.status, response.message)
@@ -29,7 +30,10 @@ function getCartAmountRequest(){
 function addCartItemRequest(productId, csrf_token){
     return makeAjaxRequest({
         type: "POST",
-        url: `/cart/add/${productId}`,
+        url: '/cart/add',
+        data: {
+            product_id: productId
+        },
         csrf_token: csrf_token
     })
 }
@@ -37,7 +41,10 @@ function addCartItemRequest(productId, csrf_token){
 function deleteCartItemRequest(productId, csrf_token){
     return makeAjaxRequest({
         type: "POST",
-        url: `/cart/delete/${productId}`,
+        url: '/cart/delete',
+        data: {
+            product_id: productId
+        },
         csrf_token: csrf_token
     })
 }
@@ -45,15 +52,33 @@ function deleteCartItemRequest(productId, csrf_token){
 function updateCartItemRequest(productId, quantity, csrf_token){
     return makeAjaxRequest({
         type: "POST",
-        url: `/cart/add/${productId}/${quantity}`,
+        url: '/cart/add',
+        data: {
+            product_id: productId,
+            quantity: quantity
+        },
         csrf_token: csrf_token
     })
 }
 
-function applyCouponRequest(coupon, csrf_token){
+function applyCouponRequest(code, csrf_token){
     return makeAjaxRequest({
         type: "POST",
-        url: `/cart/coupon/${coupon}`,
+        url: '/cart/coupon',
+        data: {
+            code: code
+        },
+        csrf_token: csrf_token
+    })
+}
+
+function createOrderRequest(client_data, csrf_token){
+    return makeAjaxRequest({
+        type: "POST",
+        url: '/create-order',
+        data: {
+            client_data: client_data
+        },
         csrf_token: csrf_token
     })
 }

@@ -17,7 +17,7 @@ class Cart(object):
 
         self.cart = cart
 
-    def add(self, product_id: str, quantity: int) -> bool:
+    def add(self, product_id: str, quantity=1) -> bool:
         """
         Добавляет продукт в корзину или обновляет его количество.
         """

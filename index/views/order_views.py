@@ -2,6 +2,8 @@ import json
 from json import JSONDecodeError
 from django.core.handlers.wsgi import WSGIRequest
 from rest_framework.views import APIView
+from cafe import settings
+from cart.views import CartView
 from index.forms import OrderForm, OrderItemForm
 from index.models import Dish
 from utils.constants import SUCCESS_MESSAGES, ERROR_MESSAGES
@@ -11,7 +13,7 @@ from django_ratelimit.decorators import ratelimit
 from django.http import JsonResponse
 
 
-@method_decorator(ratelimit(key='ip', rate='1/m'), name='dispatch')
+@method_decorator(ratelimit(key='ip', rate='2/m'), name='dispatch')
 class OrderAPIView(APIView):
     """
     Класс API для работы с заказом.
@@ -21,27 +23,23 @@ class OrderAPIView(APIView):
         Форматирует и записывает заказ в БД.
         """
         try:
-            data = json.loads(request.body)
+            data = json.loads(json.dumps(request.data))
         except JSONDecodeError:
             return error_response(ERROR_MESSAGES['invalid_request'])
 
         client_data = data.get("client_data")
-        dish_data = data.get("dish_data")
 
         order_form = OrderForm(data=client_data)
 
         if order_form.is_valid():
             order = order_form.save()
 
-            try:
-                order_items = dish_data.items()
-            except AttributeError:
-                return error_response(ERROR_MESSAGES['invalid_request'])
+            order_items = CartView().get_cart(request).cart
 
             if len(order_items) > 0:
-                for dish_id, quantity in order_items:
+                for dish_id, value in order_items.items():
                     dish = Dish.objects.get(id=dish_id)
-                    order_item_dict = self.get_formated_order_item_dict(dish, quantity)
+                    order_item_dict = self.get_formated_order_item_dict(dish, value['quantity'])
 
                     order_item_form = OrderItemForm(order_item_dict)
 
@@ -49,9 +47,13 @@ class OrderAPIView(APIView):
                         order_item = order_item_form.save(commit=False)
                         order_item.order_id = order
                         order_item.save()
-                        return success_response(SUCCESS_MESSAGES['success_order'])
                     else:
                         return error_response(ERROR_MESSAGES['invalid_request'])
+
+                del request.session[settings.CART_SESSION_ID]
+                del request.session['coupon']
+                return success_response(SUCCESS_MESSAGES['success_order'])
+
             else:
                 return error_response(ERROR_MESSAGES['error_cart_is_empty'])
         else:

@@ -53,7 +53,7 @@ let inputValue
 
 function updateQuantityItemCart(event){
   const inputElement = event.target
-  let value = inputElement.value
+  let value = parseInt(inputElement.value)
   const productId = inputElement.dataset.productId
   const csrfToken = inputElement.dataset.csrf
   const parentItem = inputElement.closest('tr')
@@ -106,7 +106,7 @@ function applyDiscountCoupon(csrf_token){
       }
     })
   }else{
-    showNotification('error', ERROR_MESSAGE['errorApplyCoupon'])
+    showNotification('error', ERROR_MESSAGES['errorApplyCoupon'])
     couponInput.style.borderColor = ERROR_COLOR_BORDER
   }
 }

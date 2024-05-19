@@ -1,5 +1,5 @@
 from django.db import models
-from index.models import Dish
+from index.models import Dish, Coupon
 
 
 class Order(models.Model):

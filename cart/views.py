@@ -1,5 +1,7 @@
+import json
 import math
 import os
+from json import JSONDecodeError
 from django.core.handlers.wsgi import WSGIRequest
 from django.views.generic import TemplateView
 from rest_framework.decorators import api_view, renderer_classes
@@ -10,6 +12,7 @@ from index.models import Dish, Coupon
 from utils.response import success_response, error_response
 from .cart import Cart
 from utils.constants import SUCCESS_MESSAGES, ERROR_MESSAGES
+from .forms import BaseDishForm, UpdateDishForm, CouponForm
 
 
 class CartTemplateView(TemplateView):
@@ -36,7 +39,7 @@ class CartTemplateView(TemplateView):
         context['delivery_cost'] = delivery_cost
         context['cart_total'] = cart_amount + delivery_cost
 
-        context.update(self.get_discount(cart_amount, delivery_cost))
+        context.update(self.get_discount(cart_amount))
 
         return context
 
@@ -70,7 +73,7 @@ class CartTemplateView(TemplateView):
         except ValueError:
             return 0
 
-    def get_discount(self, cart_amount: int, delivery_cost: int) -> dict:
+    def get_discount(self, cart_amount: int) -> dict:
         """
         Расчитывает скидку и возвращяет словарь с данными о скидке.
         """
@@ -80,6 +83,8 @@ class CartTemplateView(TemplateView):
             coupon_discount = None
 
         context = {}
+
+        delivery_cost = self.get_delivery_cost()
 
         if coupon_discount:
             discount = math.ceil(cart_amount / 100 * coupon_discount)
@@ -124,77 +129,101 @@ class CartView(APIView):
     @staticmethod
     @api_view(('POST',))
     @renderer_classes((JSONRenderer,))
-    def add(request: WSGIRequest, product_id: str, quantity=1) -> JsonResponse:
+    def add(request: WSGIRequest) -> JsonResponse:
         """
         Вызывает метод добавления товара в корзину.
         """
-        cart = CartView().get_cart(request)
-        isNewItem = True
+        try:
+            data = json.loads(json.dumps(request.data))
+        except JSONDecodeError:
+            return error_response(ERROR_MESSAGES['invalid_request'])
 
-        if product_id in cart.cart.keys():
-            isNewItem = False
+        add_dish_form = BaseDishForm(data)
 
-        result = cart.add(product_id, quantity)
+        if add_dish_form.is_valid():
+            product_id = str(data.get('product_id'))
+            quantity = data.get('quantity')
 
-        if result is True:
-            if isNewItem is True:
-                message = SUCCESS_MESSAGES['success_adding_item']
+            cart = CartView().get_cart(request)
+
+            if quantity:
+                update_dish_form = UpdateDishForm(data)
+
+                if update_dish_form.is_valid():
+                    result = cart.add(product_id, quantity)
+                    message = SUCCESS_MESSAGES['success_updating_item']
+                else:
+                    return error_response(ERROR_MESSAGES['invalid_request'])
             else:
-                message = SUCCESS_MESSAGES['success_updating_item']
+                message = SUCCESS_MESSAGES['success_adding_item']
+                result = cart.add(product_id)
 
-            items = cart.cart.items()
-            return success_response(message, items=list(items))
+            if result is True:
+                items = cart.cart.items()
+                return success_response(message, items=list(items))
+            else:
+                return error_response(ERROR_MESSAGES['error_adding_item'])
         else:
-            return error_response(ERROR_MESSAGES['error_adding_item'])
+            for field, error in add_dish_form.errors.items():
+                if error:
+                    return error_response(error[0])
 
     @staticmethod
     @api_view(('POST',))
     @renderer_classes((JSONRenderer,))
-    def delete(request: WSGIRequest, product_id: str) -> JsonResponse:
+    def delete(request: WSGIRequest) -> JsonResponse:
         """
         Вызывает метод удаления товара из корзины.
         """
-        cart = CartView().get_cart(request)
-
         try:
+            data = json.loads(json.dumps(request.data))
+        except JSONDecodeError:
+            return error_response(ERROR_MESSAGES['invalid_request'])
+
+        delete_dish_form = BaseDishForm(data)
+
+        if delete_dish_form.is_valid():
+            product_id = str(data.get('product_id'))
+            cart = CartView().get_cart(request)
+
             result = cart.remove(product_id)
 
             if result is not True:
-                result = False
-        except ValueError:
-            result = False
+                return error_response(ERROR_MESSAGES['error_deleting_item'])
 
-        if result is False:
-            return error_response(ERROR_MESSAGES['error_deleting_item'])
-
-        items = cart.cart.items()
-        return success_response(SUCCESS_MESSAGES['success_deleting_item'], items=list(items))
+            items = cart.cart.items()
+            return success_response(SUCCESS_MESSAGES['success_deleting_item'], items=list(items))
+        return error_response(ERROR_MESSAGES['error_deleting_item'])
 
     @staticmethod
     @api_view(('POST',))
     @renderer_classes((JSONRenderer,))
-    def coupon(request: WSGIRequest, coupon: str) -> JsonResponse:
+    def coupon(request: WSGIRequest) -> JsonResponse:
         """
         Применяет купон.
         """
         try:
-            coupon_obj = Coupon.objects.get(code=coupon)
-        except Coupon.DoesNotExist:
-            coupon_obj = False
+            data = json.loads(json.dumps(request.data))
+        except JSONDecodeError:
+            return error_response(ERROR_MESSAGES['invalid_request'])
 
-        if coupon_obj is not False and coupon_obj.used < coupon_obj.uses:
+        coupon_form = CouponForm(data)
+
+        if coupon_form.is_valid():
+            coupon = data.get('code')
+
+            coupon = Coupon.objects.get(code=coupon)
             session_coupon = request.session.get('coupon')
 
-            if not session_coupon or session_coupon != coupon:
-                request.session['coupon'] = coupon
+            if not session_coupon or session_coupon != coupon.code:
+                request.session['coupon'] = coupon.code
 
-                coupon_obj.used += 1
-                coupon_obj.save()
+                coupon.used += 1
+                coupon.save()
 
-                discount = coupon_obj.discount
-
+                discount = coupon.discount
                 return success_response(SUCCESS_MESSAGES['success_apply_coupon'], discount=discount)
             else:
-                if session_coupon == coupon:
+                if session_coupon == coupon.code:
                     return error_response(ERROR_MESSAGES['error_apply_coupon'])
         return error_response(ERROR_MESSAGES['error_dont_exist_coupon'])

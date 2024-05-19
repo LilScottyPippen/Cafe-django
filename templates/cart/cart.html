@@ -3,9 +3,10 @@
 
 {% block link %}
     <link rel="stylesheet" href="{% static 'css/cart.css' %}">
-    <script src="{% static 'js/cart.js' %}"></script>
-    <script src="{% static 'js/ajax_requests.js' %}"></script>
     <script src="{% static 'js/constants.js' %}"></script>
+    <script src="{% static 'js/cart.js' %}"></script>
+    <script src="{% static 'js/order.js' %}"></script>
+    <script src="{% static 'js/ajax_requests.js' %}"></script>
 {% endblock link %}
 
 {% block title %}
@@ -71,22 +72,22 @@
             <div class="section-contact-information-items">
                 <div class="section-contact-information-item">
                     <span>Имя:</span>
-                    <input name="name" type="text" placeholder="Ваше имя">
+                    <input name="name" maxlength="20" id="client-name" type="text" placeholder="Ваше имя">
                 </div>
 
                 <div class="section-contact-information-item">
                     <span>Телефон:</span>
-                    <input name="phone" type="text" placeholder="Ваш телефон">
+                    <input name="phone" maxlength="13" id="client-phone" type="text" placeholder="Ваш телефон">
                 </div>
 
                 <div class="section-contact-information-item">
                     <span>E-mail:</span>
-                    <input name="e-mail" type="text" placeholder="Ваш e-mail">
+                    <input name="mail" maxlength="100" id="client-mail" type="text" placeholder="Ваш e-mail">
                 </div>
 
                 <div class="section-contact-information-item">
                     <span>Адрес:</span>
-                    <input name="address" type="text" placeholder="Ваш адрес">
+                    <input name="address" maxlength="100" id="client-address" type="text" placeholder="Ваш адрес">
                 </div>
             </div>
         </section>
@@ -94,7 +95,7 @@
         <section class="section-payment">
             <span class="section-title">ОПЛАТА</span>
 
-            <button class="section-payment-submit">Перейти к оплате</button>
+            <button class="section-payment-submit" onclick="createOrder('{{ csrf_token }}')">Перейти к оплате</button>
         </section>
         {% else %}
             <section class="section-cart">

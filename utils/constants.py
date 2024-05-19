@@ -18,8 +18,3 @@ ERROR_MESSAGES = {
     'error_cart_is_empty': 'Корзина пуста.',
     'error_too_many_requests': 'Превышен лимит запросов.'
 }
-
-STATUS_TYPES = {
-    'success': 'success',
-    'error': 'error',
-}
