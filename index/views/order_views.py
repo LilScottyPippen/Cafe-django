@@ -51,7 +51,9 @@ class OrderAPIView(APIView):
                         return error_response(ERROR_MESSAGES['invalid_request'])
 
                 del request.session[settings.CART_SESSION_ID]
-                del request.session['coupon']
+
+                if request.session.get('coupon'):
+                    del request.session['coupon']
                 return success_response(SUCCESS_MESSAGES['success_order'])
 
             else:
