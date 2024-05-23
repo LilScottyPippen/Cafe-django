@@ -1,6 +1,8 @@
 import json
 from json import JSONDecodeError
+import stripe
 from django.core.handlers.wsgi import WSGIRequest
+from django.urls import reverse
 from rest_framework.views import APIView
 from cafe import settings
 from cart.views import CartView
@@ -27,12 +29,13 @@ class OrderAPIView(APIView):
         except JSONDecodeError:
             return error_response(ERROR_MESSAGES['invalid_request'])
 
-        client_data = data.get("client_data")
+        client_data = data.get('client_data')
 
         order_form = OrderForm(data=client_data)
 
         if order_form.is_valid():
             order = order_form.save()
+            request.session[settings.ORDER_ID_SESSION_ID] = order.pk
 
             order_items = CartView().get_cart(request).cart
 
@@ -50,11 +53,9 @@ class OrderAPIView(APIView):
                     else:
                         return error_response(ERROR_MESSAGES['invalid_request'])
 
-                del request.session[settings.CART_SESSION_ID]
+                payment_link = self.get_payment_link(request)
 
-                if request.session.get('coupon'):
-                    del request.session['coupon']
-                return success_response(SUCCESS_MESSAGES['success_order'])
+                return success_response(SUCCESS_MESSAGES['success_order'], payment_url=payment_link)
 
             else:
                 return error_response(ERROR_MESSAGES['error_cart_is_empty'])
@@ -75,3 +76,32 @@ class OrderAPIView(APIView):
             'quantity': quantity,
             'price': dish_price,
         }
+
+    def get_payment_link(self, request: WSGIRequest) -> str:
+        """
+        Создает и возвращяет ссылку на оплату.
+        """
+        redirect_url = request.build_absolute_uri(reverse('cart:cart'))
+
+        cart = CartView().get_cart(request)
+        cart_amount = cart.get_total_amount() * 100
+
+        stripe_request = stripe.checkout.Session.create(
+            payment_method_types=['card'],
+            line_items=[{
+                'price_data': {
+                    'currency': settings.CURRENCY,
+                    'unit_amount': cart_amount,
+                    'product_data': {
+                        'name': settings.TRANSACTION_NAME
+                    }
+                },
+                'quantity': 1,
+            }],
+            mode='payment',
+            success_url=redirect_url
+        )
+
+        request.session[settings.STRIPE_SESSION_ID] = stripe_request['id']
+
+        return stripe_request['url']

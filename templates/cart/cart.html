@@ -104,4 +104,10 @@
             </section>
         {% endif %}
     </section>
+    
+    {% if is_paid %}
+        <script>
+            showNotification('success', 'Оплата прошла успешно.')
+        </script>
+    {% endif %}
 {% endblock main %}

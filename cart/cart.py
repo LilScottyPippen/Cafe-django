@@ -1,7 +1,9 @@
+import math
+import os
 from typing import Union
-from django.conf import settings
 from django.core.handlers.wsgi import WSGIRequest
-from index.models import Dish
+from cafe import settings
+from index.models import Dish, Coupon
 
 
 class Cart(object):
@@ -45,7 +47,13 @@ class Cart(object):
             return True
         return False
 
-    def get_total_amount(self) -> Union[int, bool]:
+    def save(self) -> None:
+        """
+        Сохранение корзины в сессии.
+        """
+        self.session[settings.CART_SESSION_ID] = self.cart
+
+    def get_amount(self) -> int:
         """
         Расчитывает сумму корзины.
         """
@@ -59,8 +67,30 @@ class Cart(object):
             amount += product.price * int(item['quantity'])
         return amount
 
-    def save(self) -> None:
+    def get_total_amount(self) -> Union[int, bool]:
         """
-        Сохранение корзины в сессии.
+        Расчитывает итоговую сумму корзины.
         """
-        self.session[settings.CART_SESSION_ID] = self.cart
+        amount = self.get_amount()
+
+        discount = self.get_discount()
+
+        delivery_cost = int(os.getenv('DELIVERY_COST'))
+
+        if discount:
+            amount = math.ceil(amount / 100 * discount)
+
+        return amount + delivery_cost
+
+    def get_discount(self) -> Union[int, bool]:
+        coupon = self.session.get(settings.COUPON_SESSION_ID)
+
+        if coupon:
+            try:
+                coupon_discount = Coupon.objects.get(code=coupon).discount
+            except Coupon.DoesNotExist:
+                coupon_discount = None
+
+            if coupon_discount:
+                return coupon_discount
+        return False

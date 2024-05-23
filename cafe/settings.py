@@ -1,6 +1,8 @@
 import os
 from pathlib import Path
 from dotenv import load_dotenv
+import stripe
+from django.urls import reverse
 
 load_dotenv()
 
@@ -119,5 +121,14 @@ except KeyError:
 SESSION_COOKIE_AGE = 60 * 60 * 24 * 7
 
 CART_SESSION_ID = 'cart'
+STRIPE_SESSION_ID = 'stripe_session'
+COUPON_SESSION_ID = 'coupon'
+ORDER_ID_SESSION_ID = 'order_id'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+STRIPE_PUBLIC_KEY = os.getenv('STRIPE_PUBLIC_KEY')
+stripe.api_key = os.getenv('STRIPE_SECRET_KEY')
+
+CURRENCY = 'BYN'
+TRANSACTION_NAME = 'Cafe'

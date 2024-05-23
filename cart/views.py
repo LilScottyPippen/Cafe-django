@@ -1,17 +1,19 @@
 import json
-import math
 import os
 from json import JSONDecodeError
+import stripe
 from django.core.handlers.wsgi import WSGIRequest
 from django.views.generic import TemplateView
 from rest_framework.decorators import api_view, renderer_classes
 from rest_framework.renderers import JSONRenderer
 from django.http import JsonResponse
 from rest_framework.views import APIView
-from index.models import Dish, Coupon
+from stripe import InvalidRequestError
+from cafe import settings
+from index.models import Dish, Coupon, Order
 from utils.response import success_response, error_response
 from .cart import Cart
-from utils.constants import SUCCESS_MESSAGES, ERROR_MESSAGES
+from utils.constants import SUCCESS_MESSAGES, ERROR_MESSAGES, STRIPE_STATUS
 from .forms import BaseDishForm, UpdateDishForm, CouponForm
 
 
@@ -27,10 +29,27 @@ class CartTemplateView(TemplateView):
         """
         context = super().get_context_data(**kwargs)
 
+        if self.is_paid():
+            del self.request.session[settings.STRIPE_SESSION_ID]
+            del self.request.session[settings.CART_SESSION_ID]
+
+            if self.request.session.get(settings.COUPON_SESSION_ID):
+                del self.request.session[settings.COUPON_SESSION_ID]
+
+            order_id = self.request.session.get(settings.ORDER_ID_SESSION_ID)
+
+            if order_id:
+                order = Order.objects.get(id=order_id)
+                order.status = True
+                order.save()
+                del self.request.session[settings.ORDER_ID_SESSION_ID]
+
+            context['is_paid'] = True
+
         cart_products = self.get_cart_products()
 
         cart = CartView().get_cart(self.request)
-        cart_amount = cart.get_total_amount()
+        cart_amount = cart.get_amount()
 
         delivery_cost = self.get_delivery_cost()
 
@@ -77,22 +96,43 @@ class CartTemplateView(TemplateView):
         """
         Расчитывает скидку и возвращяет словарь с данными о скидке.
         """
-        try:
-            coupon_discount = Coupon.objects.get(code=self.request.session.get('coupon')).discount
-        except Coupon.DoesNotExist:
-            coupon_discount = None
-
         context = {}
 
-        delivery_cost = self.get_delivery_cost()
+        coupon = self.request.session.get(settings.COUPON_SESSION_ID)
 
-        if coupon_discount:
-            discount = math.ceil(cart_amount / 100 * coupon_discount)
+        if coupon:
+            try:
+                coupon_discount = Coupon.objects.get(code=coupon).discount
+            except Coupon.DoesNotExist:
+                coupon_discount = None
 
-            context['discount'] = coupon_discount
-            context['cart_total'] = (cart_amount - discount) + delivery_cost
+            if coupon_discount:
+                context['discount'] = coupon_discount
+
+        cart = CartView().get_cart(self.request)
+
+        context['cart_total'] = cart.get_total_amount()
 
         return context
+
+    def is_paid(self) -> bool:
+        """
+        Проверяет оплачен ли заказ.
+        """
+        session_id = self.request.session.get(settings.STRIPE_SESSION_ID, None)
+
+        if session_id:
+            session = stripe.checkout.Session.retrieve(session_id)
+            transaction_id = session.payment_intent
+            try:
+                transaction = stripe.PaymentIntent.retrieve(transaction_id)
+            except InvalidRequestError:
+                return False
+            transaction_status = transaction['status']
+
+            if transaction_status == STRIPE_STATUS['succeeded']:
+                return True
+        return False
 
 
 class CartView(APIView):
@@ -117,9 +157,21 @@ class CartView(APIView):
     @staticmethod
     @api_view(('GET',))
     @renderer_classes((JSONRenderer,))
-    def get_amount(request: WSGIRequest):
+    def get_amount(request: WSGIRequest) -> JsonResponse:
         """
         Возвращяет сумму корзины.
+        """
+        cart = CartView().get_cart(request)
+        amount = cart.get_amount()
+
+        return success_response(None, amount=amount)
+
+    @staticmethod
+    @api_view(('GET',))
+    @renderer_classes((JSONRenderer,))
+    def get_total_amount(request: WSGIRequest) -> JsonResponse:
+        """
+        Возвращяет итоговую сумму корзины.
         """
         cart = CartView().get_cart(request)
         amount = cart.get_total_amount()
@@ -213,10 +265,10 @@ class CartView(APIView):
             coupon = data.get('code')
 
             coupon = Coupon.objects.get(code=coupon)
-            session_coupon = request.session.get('coupon')
+            session_coupon = request.session.get(settings.COUPON_SESSION_ID)
 
             if not session_coupon or session_coupon != coupon.code:
-                request.session['coupon'] = coupon.code
+                request.session[settings.COUPON_SESSION_ID] = coupon.code
 
                 coupon.used += 1
                 coupon.save()

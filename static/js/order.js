@@ -17,7 +17,7 @@ function createOrder(csrf_token){
 
         result.then(function(json){
             if (json.status === 'success')
-              setEmptyCart()
+                window.location = json.payment_url
         })
     }
 }
