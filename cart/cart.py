@@ -78,9 +78,9 @@ class Cart(object):
         delivery_cost = int(os.getenv('DELIVERY_COST'))
 
         if discount:
-            amount = math.ceil(amount / 100 * discount)
+            discount = math.ceil(amount / 100 * discount)
 
-        return amount + delivery_cost
+        return (amount - discount) + delivery_cost
 
     def get_discount(self) -> Union[int, bool]:
         coupon = self.session.get(settings.COUPON_SESSION_ID)
