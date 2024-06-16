@@ -81,7 +81,7 @@ DATABASES = {
     }
 }
 
-CSRF_TRUSTED_ORIGINS = ['https://*.railway.app', 'https://*.127.0.0.1']
+CSRF_TRUSTED_ORIGINS = ['https://*.railway.app', 'https://*.127.0.0.1', 'https://sharlerya.shop']
 
 AUTH_PASSWORD_VALIDATORS = [
     {
